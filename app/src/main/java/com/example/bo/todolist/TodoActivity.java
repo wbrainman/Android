@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -40,6 +41,8 @@ public class TodoActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate adapter is not null");
         }
         mInput = new String();
+
+        setListClickListener();
     }
 
     private void initTodoList() {
@@ -95,5 +98,14 @@ public class TodoActivity extends AppCompatActivity {
             }
         });
         inputDiag.show();
+    }
+
+    private void setListClickListener() {
+        mAdapter.setItemClickListener(new TodoItemAdapter.onItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d(TAG, "setListClickListener click item : "+ position);
+            }
+        });
     }
 }
