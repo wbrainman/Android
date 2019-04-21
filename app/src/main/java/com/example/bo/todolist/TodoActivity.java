@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +29,10 @@ public class TodoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_todo);
         Log.d(TAG, "Todo created" + this);
         initTodoList();
+        initRecyView();
+    }
+
+    public void initRecyView() {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.todo_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -35,22 +40,24 @@ public class TodoActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate adapter is null");
             mAdapter = new TodoItemAdapter(mTodoItemList);
             recyclerView.setAdapter(mAdapter);
-            recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+            recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
         }
         else {
             Log.d(TAG, "onCreate adapter is not null");
         }
         mInput = new String();
-
         setListClickListener();
+
+        RecyItemTouchHelperCallback recyItemTouchHelperCallback = new RecyItemTouchHelperCallback(mAdapter);
+        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(recyItemTouchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
+
+
     }
 
     private void initTodoList() {
         Log.d(TAG, "initTodoList: size = " + mTodoItemList.size());
-        for(int i = 0; i < mTodoItemList.size(); i ++) {
-            Log.d(TAG, "initTodoList: " + mTodoItemList.get(i).getName());
-            //mTodoItemList.add(mTodoItemList.get(i));
-        }
     }
 
     @Override

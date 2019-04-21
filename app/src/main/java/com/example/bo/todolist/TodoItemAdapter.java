@@ -63,4 +63,8 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
             mOnItemClickListener.onItemClick(v, (int)v.getTag());
         }
     }
+
+    public List<TodoItem> getDataList() {
+        return mTodoList;
+    }
 }
