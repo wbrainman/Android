@@ -20,7 +20,7 @@ public class RecyItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public RecyItemTouchHelperCallback(RecyclerView.Adapter adapter) {
         mAdapter = adapter;
         isSwapEnable = true;
-        isFirstDragUnable = false;
+        isFirstDragUnable = true;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class RecyItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
         if(actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
             int pos = viewHolder.getAdapterPosition();
-            Log.d(TAG, "touchHelper:set to bule : "+ pos);
+            Log.d(TAG, "touchHelper:set to light gray : "+ pos);
             viewHolder.itemView.setBackgroundColor(Color.LTGRAY);
         }
         super.onSelectedChanged(viewHolder, actionState);
@@ -90,6 +90,7 @@ public class RecyItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 Collections.swap(((TodoItemAdapter)mAdapter).getDataList(), i, i - 1);
             }
         }
+        mAdapter.notifyItemMoved(fromPos,toPos);
         return true;
     }
 }
