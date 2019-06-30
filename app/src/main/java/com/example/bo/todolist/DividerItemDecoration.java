@@ -42,7 +42,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         if(mOrientation == HORIZONTAL) {
-            Log.d(TAG, "onDraw ");
+            //Log.d(TAG, "onDraw ");
             drawHorizontalLine(c, parent, state);
         }
         else {
@@ -60,7 +60,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
             final int top = child.getBottom() + params.bottomMargin;
             final int bottom = top + mDivider.getIntrinsicHeight();
-            Log.d(TAG, "drawHorizontalLine: top " + top + " bottom " + bottom + "left " + left + "right" + right);
+            //Log.d(TAG, "drawHorizontalLine: top " + top + " bottom " + bottom + "left " + left + "right" + right);
             mDivider.setBounds(left,top,right,bottom);
             mDivider.draw(c);
         }

@@ -20,6 +20,9 @@
             android:name=".TodoActivity"
             android:launchMode="singleTask"
         />
+        <activity android:name=".TodoDetailActivity"
+            android:launchMode="singleTask"
+        />
     </application>
 
 </manifest>

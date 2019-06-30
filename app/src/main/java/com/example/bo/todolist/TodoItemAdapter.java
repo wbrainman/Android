@@ -6,11 +6,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
 
-public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHolder> implements View.OnClickListener {
+public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHolder> {
     private  static final String TAG = "Todo";
     private List<TodoItem> mTodoList;
     private onItemClickListener mOnItemClickListener = null;
@@ -24,10 +25,16 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        View itemView;
         TextView itemName;
+        ImageView imgAlarm;
+        ImageView imgAdd;
         public ViewHolder(View view) {
             super(view);
+            itemView = view;
             itemName = (TextView) view.findViewById(R.id.item_name);
+            imgAlarm = (ImageView) view.findViewById(R.id.image_alarm);
+            imgAdd = (ImageView) view.findViewById(R.id.image_add);
         }
     }
 
@@ -38,30 +45,42 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        Log.d(TAG, "onCreateViewHolder i: "+ i);
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.todo_item, viewGroup, false);
         final ViewHolder holder = new ViewHolder(view);
-        holder.itemView.setOnClickListener(this);
+        //holder.itemView.setOnClickListener(this);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "item view Click v.getTag : "+ v.getTag());
+            }
+        });
+        holder.imgAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "add image Click  getAdapterPosition: "+ holder.getAdapterPosition());
+                if(mOnItemClickListener != null) {
+                    //mOnItemClickListener.onItemClick(v, (int)v.getTag());
+                    mOnItemClickListener.onItemClick(v, holder.getAdapterPosition());
+                }
+            }
+        });
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Log.d(TAG, "onBindViewHolder pos: "+ position);
         TodoItem todoItem = mTodoList.get(position);
         holder.itemName.setText(todoItem.getName());
+        holder.imgAlarm.setImageResource(R.drawable.alarm);
+        holder.imgAdd.setImageResource(R.drawable.add);
         holder.itemView.setTag(position);
     }
 
     @Override
     public int getItemCount() {
         return mTodoList.size();
-    }
-
-    @Override
-    public void onClick(View v) {
-        //Log.d(TAG, "setListClickListener click item : "+ v.getTag());
-        if(mOnItemClickListener != null) {
-            mOnItemClickListener.onItemClick(v, (int)v.getTag());
-        }
     }
 
     public List<TodoItem> getDataList() {
