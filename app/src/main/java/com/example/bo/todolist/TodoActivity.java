@@ -1,8 +1,10 @@
 package com.example.bo.todolist;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,6 +30,7 @@ public class TodoActivity extends AppCompatActivity {
     private static List<TodoItem> mTodoItemList = new ArrayList<>();
     private TodoItemAdapter mAdapter = null;
     private String mInput = null;
+    private MyDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +39,17 @@ public class TodoActivity extends AppCompatActivity {
         Log.d(TAG, "Todo created" + this);
         initTodoList();
         initRecyView();
+        dbInit();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        save(mInput);
+        //save(mInput);
 
     }
 
+    /*
     public void save(String inputText) {
         FileOutputStream out = null;
         BufferedWriter writer = null;
@@ -64,6 +69,7 @@ public class TodoActivity extends AppCompatActivity {
             }
         }
     }
+    */
 
     public void initRecyView() {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.todo_recycler_view);
@@ -84,10 +90,8 @@ public class TodoActivity extends AppCompatActivity {
         RecyItemTouchHelperCallback recyItemTouchHelperCallback = new RecyItemTouchHelperCallback(mAdapter);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(recyItemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-
-
-
     }
+
 
     private void initTodoList() {
         Log.d(TAG, "initTodoList: size = " + mTodoItemList.size());
@@ -131,10 +135,14 @@ public class TodoActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 //Toast.makeText(TodoActivity.this,editText.getText().toString(),Toast.LENGTH_SHORT).show();
                 mInput = editText.getText().toString();
-                Log.d(TAG, "onOptionsItemSelected mInput: "+ mInput);
                 TodoItem todoItem = new TodoItem(mInput);
                 mTodoItemList.add(todoItem);
                 mAdapter.notifyItemInserted(mTodoItemList.size() - 1);
+                /* db insert here */
+                Log.d(TAG, "onOptionsItemSelected mInput: "+ mInput + " size:" + mTodoItemList.size());
+                dbInsert( mInput);
+                //dbUpdate();
+                dbDelete();
             }
         });
         inputDiag.show();
@@ -152,4 +160,38 @@ public class TodoActivity extends AppCompatActivity {
                 }
         });
     }
+/******************************************************************************************************/
+/***                                DB                                                              ***/
+/******************************************************************************************************/
+    public void dbInit() {
+        dbHelper = new MyDatabaseHelper(this, "TodoList.db", null, 2);
+        dbHelper.getWritableDatabase();
+    }
+
+    public void dbInsert(String item) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put("item", mInput);
+        db.insert("Todo", null, values);
+        values.clear();
+    }
+
+    public void dbUpdate() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put("item", "ttt");
+        db.update("Todo", values, "item = ?", new String[] {"wwwer"});
+        values.clear();
+    }
+
+    public void dbDelete() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        db.delete("Todo","item = ?", new String[] {"ttt"});
+        values.clear();
+    }
 }
+
