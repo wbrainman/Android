@@ -19,11 +19,16 @@
         </activity>
         <activity
             android:name=".TodoActivity"
-            android:launchMode="singleTask"
-        />
-        <activity android:name=".TodoDetailActivity"
-            android:launchMode="singleTask"
-        />
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".TodoDetailActivity"
+            android:launchMode="singleTask" />
+
+        <provider
+            android:name=".DatabaseProvider"
+            android:authorities="com.example.bo.todolist.provider"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>

@@ -14,6 +14,8 @@ import java.util.List;
 public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHolder> {
     private  static final String TAG = "Todo";
     private List<TodoItem> mTodoList;
+
+    /*** interface ***/
     private onItemClickListener mOnItemClickListener = null;
 
     public static interface onItemClickListener {
@@ -24,6 +26,17 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
         mOnItemClickListener = listener;
     }
 
+    private onItemRemoveListener mOnItemRemoveListener = null;
+
+    public static interface onItemRemoveListener {
+        void onItemRemove(int position);
+    }
+
+    public void setItemRemoveListener(onItemRemoveListener listener) {
+        mOnItemRemoveListener = listener;
+    }
+
+    /*** view holder ***/
     static class ViewHolder extends RecyclerView.ViewHolder {
         View itemView;
         TextView itemName;
@@ -65,6 +78,7 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
                 }
             }
         });
+
         return holder;
     }
 
@@ -86,4 +100,16 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
     public List<TodoItem> getDataList() {
         return mTodoList;
     }
+
+    public void removeItem(int position) {
+        notifyItemRemoved(position);
+        mTodoList.remove(position);
+
+        Log.d(TAG, " Adapter removeItem pos: "+ position);
+        if(mOnItemRemoveListener != null) {
+            mOnItemRemoveListener.onItemRemove(position);
+        }
+    }
+
+    /*** end ***/
 }

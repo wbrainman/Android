@@ -40,15 +40,13 @@ public class RecyItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         int adapterPos = viewHolder.getAdapterPosition();
-        mAdapter.notifyItemRemoved(adapterPos);
-        ((TodoItemAdapter)mAdapter).getDataList().remove(adapterPos);
-
+        ((TodoItemAdapter)mAdapter).removeItem(adapterPos);
     }
 
     @Override
     public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
         if(actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-            int pos = viewHolder.getAdapterPosition();
+        int pos = viewHolder.getAdapterPosition();
             Log.d(TAG, "touchHelper:set to light gray : "+ pos);
             viewHolder.itemView.setBackgroundColor(Color.LTGRAY);
         }
