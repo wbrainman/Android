@@ -33,7 +33,6 @@ public class TodoActivity extends AppCompatActivity {
     private  static final String TAG = "Todo";
     private static List<TodoItem> mTodoItemList = new ArrayList<>();
     private TodoItemAdapter mAdapter = null;
-    private String mInput = null;
     //private MyDatabaseHelper dbHelper;
 
     @Override
@@ -48,6 +47,7 @@ public class TodoActivity extends AppCompatActivity {
 
         setListClickListener();
         setListRemoveListener();
+        setListMoveListener();
     }
 
     @Override
@@ -55,12 +55,20 @@ public class TodoActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG, "TodoActivity onDestroy");
         mTodoItemList.clear();
+
+        //debug
+        print_mTodoItemList();
+        print_TodoDatabase();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "TodoActivity onStart");
+
+        //debug
+        print_mTodoItemList();
+        print_TodoDatabase();
 
     }
 
@@ -87,7 +95,6 @@ public class TodoActivity extends AppCompatActivity {
         super.onStop();
         Log.d(TAG, "TodoActivity onStop");
         //dbDeleteAll();
-        //dbAddAll();
     }
 
     public void initRecyView() {
@@ -102,7 +109,6 @@ public class TodoActivity extends AppCompatActivity {
         else {
             Log.d(TAG, "onCreate adapter is not null");
         }
-        mInput = new String();
 
         RecyItemTouchHelperCallback recyItemTouchHelperCallback = new RecyItemTouchHelperCallback(mAdapter);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(recyItemTouchHelperCallback);
@@ -120,21 +126,16 @@ public class TodoActivity extends AppCompatActivity {
         return true;
     }
 
+    /***********************************************************************************************/
+    /***                                Dialog                                                 ***/
+    /***********************************************************************************************/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
-                /*
-                Toast.makeText(this,"You clicked add",Toast.LENGTH_SHORT).show();
-                int i = mTodoItemList.size();
-                TodoItem todoItem = new TodoItem("todo" + i);
-                mTodoItemList.add(todoItem);
-                mAdapter.notifyItemInserted(mTodoItemList.size() - 1);
-                */
                 showInputDiag();
                 break;
             case R.id.just_do_not_know:
-                //Toast.makeText(this,"You clicked don't know",Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
@@ -150,14 +151,23 @@ public class TodoActivity extends AppCompatActivity {
         inputDiag.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //Toast.makeText(TodoActivity.this,editText.getText().toString(),Toast.LENGTH_SHORT).show();
-                mInput = editText.getText().toString();
+                String mInput = editText.getText().toString();
+                int id = 0;
                 TodoItem todoItem = new TodoItem(mInput);
+
                 mTodoItemList.add(todoItem);
-                mAdapter.notifyItemInserted(mTodoItemList.size() - 1);
+                id = mTodoItemList.size() - 1;
+                mAdapter.notifyItemInserted(id);
+
                 /* db insert here */
                 Log.d(TAG, "onOptionsItemSelected mInput: "+ mInput + " size:" + mTodoItemList.size());
-                dbAdd(mInput);
+                dbAdd(id, mInput);
+                /*db update*/
+                dbUpdate();
+
+                //debug
+                print_mTodoItemList();
+                print_TodoDatabase();
             }
         });
         inputDiag.show();
@@ -184,11 +194,27 @@ public class TodoActivity extends AppCompatActivity {
             @Override
             public void onItemRemove(int position) {
                 Log.d(TAG, "setListRemoveListener remove item : "+ position);
-                mTodoItemList.remove(position);
-                dbDelete(position);
+                int index = position;
+                dbDelete(index);
+                dbUpdate();
+
+                //debug
+                print_mTodoItemList();
+                print_TodoDatabase();
             }
         });
+    }
 
+    private void setListMoveListener() {
+        mAdapter.setItemMoveListener(new TodoItemAdapter.onItemMoveListener() {
+            @Override
+            public void onItemMove(int fromPos, int toPos) {
+                Log.d(TAG, "setListMoveListener move from "+ fromPos + " to " + toPos);
+                //debug
+                print_mTodoItemList();
+                print_TodoDatabase();
+            }
+        });
     }
 
     /***********************************************************************************************/
@@ -255,19 +281,21 @@ public class TodoActivity extends AppCompatActivity {
 /***************************************************************************************************/
 public void dbInit() {
     LitePal.getDatabase();
+    int count = LitePal.count(TodoDatabase.class);
+    Log.d(TAG, "dbInit, count is " + count);
 
     List<TodoDatabase> todoDatabases = dbQuery();
     for(TodoDatabase todoDatabase:todoDatabases) {
         TodoItem todoItem = new TodoItem(todoDatabase.getItem());
         mTodoItemList.add(todoItem);
-        Log.d(TAG, "TodoActivity dbInit mTodoItemList.size() = " + mTodoItemList.size());
         mAdapter.notifyItemInserted(mTodoItemList.size() - 1);
     }
 }
 
-public void dbAdd(String item) {
+public void dbAdd(int index, String item) {
     TodoDatabase todoDatabase = new TodoDatabase();
     todoDatabase.setItem(item);
+    todoDatabase.setIndex(index);
     todoDatabase.save();
 }
 
@@ -280,9 +308,14 @@ public void dbAddAll() {
     }
 }
 public void dbUpdate() {
-    TodoDatabase todoDatabase = new TodoDatabase();
-    todoDatabase.setItem("www");
-    todoDatabase.updateAll("item = ?","qqq");
+
+    List<TodoDatabase> todoDatabases = dbQuery();
+    int index = 0;
+    for(TodoDatabase todoDatabase : todoDatabases) {
+        todoDatabase.setIndex(index);
+        todoDatabase.save();
+        index ++;
+    }
 }
 
 public void dbSetToDefault() {
@@ -291,28 +324,45 @@ public void dbSetToDefault() {
     todoDatabase.updateAll();
 }
 
-public void dbDelete(int position) {
+public void dbDelete(int index) {
     Log.d(TAG, "dbDelete");
     TodoDatabase todoDatabase = new TodoDatabase();
-    LitePal.delete(TodoDatabase.class,position );
+    String condition = String.valueOf(index);
+    LitePal.deleteAll(TodoDatabase.class, "index = ?", condition);
 }
 
 public void dbDeleteAll() {
     Log.d(TAG, "dbDelete all");
-    LitePal.deleteAll(TodoDatabase.class,null);
+    LitePal.deleteAll(TodoDatabase.class);
 }
 
 public List<TodoDatabase> dbQuery() {
     Log.d(TAG, "dbQuery");
     List<TodoDatabase> todoDatabases = LitePal.findAll(TodoDatabase.class);
     for(TodoDatabase todoDatabase:todoDatabases) {
-        Log.d(TAG,"tododatabase id is " + todoDatabase.getId());
-        Log.d(TAG,"tododatabase item is " + todoDatabase.getItem());
+        //Log.d(TAG,"dbQuery tododatabase id is " + todoDatabase.getIndex());
+        //Log.d(TAG,"dbQuery tododatabase item is " + todoDatabase.getItem());
     }
     return todoDatabases;
 }
 
 
+/***********************************************************************************************/
+/***                                debug info                                              ***/
+/***********************************************************************************************/
+private void print_mTodoItemList() {
+    for(TodoItem todoItem : mTodoItemList) {
+        Log.d(TAG, "print_mTodoItemList item is " + todoItem.getName());
+    }
+}
+
+private void print_TodoDatabase() {
+    List<TodoDatabase> todoDatabases = dbQuery();
+    for(TodoDatabase todoDatabase:todoDatabases) {
+        TodoItem todoItem = new TodoItem(todoDatabase.getItem());
+        Log.d(TAG, "print_TodoDatabase todoItem " + todoItem.getName());
+    }
+}
 
 //end
 }

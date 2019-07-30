@@ -20,7 +20,7 @@ public class RecyItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public RecyItemTouchHelperCallback(RecyclerView.Adapter adapter) {
         mAdapter = adapter;
         isSwapEnable = true;
-        isFirstDragUnable = true;
+        isFirstDragUnable = false;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class RecyItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 Collections.swap(((TodoItemAdapter)mAdapter).getDataList(), i, i - 1);
             }
         }
-        mAdapter.notifyItemMoved(fromPos,toPos);
+        ((TodoItemAdapter)mAdapter).moveItem(fromPos,toPos);
         return true;
     }
 }

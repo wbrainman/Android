@@ -75,7 +75,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         if(mOrientation == HORIZONTAL) {
             outRect.set(0,0,0,mDivider.getIntrinsicHeight());
             //outRect.set(0,0,0,1);
-            Log.d(TAG, "getItemOffsets: getIntrinsicHeight = " + mDivider.getIntrinsicHeight());
+            //Log.d(TAG, "getItemOffsets: getIntrinsicHeight = " + mDivider.getIntrinsicHeight());
         }
         else {
             outRect.set(0,0,mDivider.getIntrinsicHeight(),0);

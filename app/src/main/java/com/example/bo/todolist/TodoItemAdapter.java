@@ -36,6 +36,16 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
         mOnItemRemoveListener = listener;
     }
 
+    private onItemMoveListener mOnItemMoveListener = null;
+
+    public static interface onItemMoveListener {
+        void onItemMove(int fromPos, int toPos);
+    }
+
+    public void setItemMoveListener(onItemMoveListener listener) {
+        mOnItemMoveListener = listener;
+    }
+
     /*** view holder ***/
     static class ViewHolder extends RecyclerView.ViewHolder {
         View itemView;
@@ -110,6 +120,15 @@ public class TodoItemAdapter extends RecyclerView.Adapter<TodoItemAdapter.ViewHo
             mOnItemRemoveListener.onItemRemove(position);
         }
     }
+    public void moveItem(int fromPos, int toPos) {
+        notifyItemMoved(fromPos, toPos);
+
+        Log.d(TAG, " Adapter moveItem fromPos: "+ fromPos + " toPos" + toPos);
+        if(mOnItemMoveListener != null) {
+            mOnItemMoveListener.onItemMove(fromPos,toPos);
+        }
+    }
+
 
     /*** end ***/
 }

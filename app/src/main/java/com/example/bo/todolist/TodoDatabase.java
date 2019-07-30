@@ -3,15 +3,15 @@ package com.example.bo.todolist;
 import org.litepal.crud.LitePalSupport;
 
 public class TodoDatabase extends LitePalSupport {
-    private int id;
+    private int index;
     private String item;
 
-    public int getId() {
-        return  id;
+    public int getIndex() {
+        return  index;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public String getItem() {
